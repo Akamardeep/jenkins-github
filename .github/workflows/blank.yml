@@ -30,9 +30,9 @@ jobs:
           pwd
           nproc
           free
-          node -version
-          docker -version
-          python -version
+          node -v
+          docker -v
+          python -v
 
       
       - name: run file
