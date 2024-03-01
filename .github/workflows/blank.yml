@@ -41,9 +41,13 @@ jobs:
             sh build.sh
       
         
-      - name: run file
+      - name: Deploy on EC2
         run: |
-         python test.py
-          
+            echo "login to ec2"
+            sh login.sh
+      
+      - name: Update ECS Service
+        run: |
+            aws ecs update-service --cluster jithesh --service jithesh-service --force-new-deployment   
           
    
