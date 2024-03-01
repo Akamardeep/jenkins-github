@@ -26,7 +26,7 @@ jobs:
 
       - name: Unit Test
         run: |
-          ls -al
+          
           pwd
           nproc
           free
@@ -38,7 +38,6 @@ jobs:
             aws configure set default.region us-east-1  
             ls
             pwd
-            ls-al
             sh build.sh
       
         
