@@ -1,12 +1,10 @@
-
 pipeline {
     agent any
 
     environment {
-        AWS_CREDENTIALS_ID = 'AWS_CREDENTIALS_ID'
         AWS_DEFAULT_REGION = 'us-east-1'  // replace with your ECR region
-        ECR_REPO = 'demo-cicd'        // replace with your ECR repository name
-        IMAGE_TAG = sh(script: 'echo $BUILD_NUMBER', returnStdout: true).trim()
+        ECR_REPO = 'demo-cicd'             // replace with your ECR repository name
+        IMAGE_TAG = "latest-${BUILD_NUMBER}"
         AWS_ACCOUNT_ID = '508308164161'
     }
 
@@ -18,17 +16,29 @@ pipeline {
             }
         }
 
-         stage('Build and Push Docker Image') {
-             steps {
-               script {
-                   sh "aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 508308164161.dkr.ecr.us-east-1.amazonaws.com"
-                   sh "docker build -t demo-cicd ."
-                   sh "docker tag demo-cicd:latest 508308164161.dkr.ecr.us-east-1.amazonaws.com/demo-cicd:latest"
-                   sh "docker push 508308164161.dkr.ecr.us-east-1.amazonaws.com/demo-cicd:latest"
-                   
-                 }
-             }
-         }
-     }
+        stage('Build and Push Docker Image') {
+            steps {
+                script {
+                    try {
+                        // Authenticate Docker with ECR
+                        def ecrLogin = sh(script: "aws ecr get-login-password --region ${AWS_DEFAULT_REGION}", returnStatus: true)
+                        if (ecrLogin != 0) {
+                            error "Failed to authenticate with ECR."
+                        }
 
+                        // Build Docker image
+                        sh "docker build -t ${ECR_REPO} ."
+
+                        // Tag Docker image
+                        sh "docker tag ${ECR_REPO}:latest ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${ECR_REPO}:${IMAGE_TAG}"
+
+                        // Push Docker image to ECR
+                        sh "docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${ECR_REPO}:${IMAGE_TAG}"
+                    } catch (Exception e) {
+                        error "Error during Docker image build and push: ${e.message}"
+                    }
+                }
+            }
+        }
+    }
 }
