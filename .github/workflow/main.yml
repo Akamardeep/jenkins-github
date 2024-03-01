@@ -1,0 +1,30 @@
+name: Run unit tests
+
+on:
+  push:
+    branches: [main, amardeep]
+  pull_request:
+    branches: [main , amardeep]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Install Packages
+        run: |
+          pip install coverage
+
+      - name: Display Branch Name
+        run: |
+           echo ${GITHUB_HEAD_REF}
+
+      # - name: Unit Test
+      #   run: |
+      #     ls -al
+      #     chmod +x ${{ github.workspace }}/test.py
+      #     python ${{ github.workspace }}/test.py
+      #     coverage report -m --fail-under=80
