@@ -21,20 +21,11 @@ pipeline {
          stage('Build and Push Docker Image') {
              steps {
                script {
-                     // Authenticate Docker with ECR
-                       withCredentials([usernamePassword(credentialsId: AWS_CREDENTIALS_ID, passwordVariable: 'AWS_SECRET_ACCESS_KEY', usernameVariable: 'AWS_ACCESS_KEY_ID')]) {
-                        sh "aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com"
-
-                    }
-
-                     // Build and tag the Docker image
-                     sh "docker build -t $ECR_REPO:$IMAGE_TAG ."
-
-                     // Tag the image for ECR
-                     sh "docker tag $ECR_REPO:$IMAGE_TAG $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$ECR_REPO:$IMAGE_TAG"
-
-                     // Push the image to ECR
-                     sh "docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$ECR_REPO:$IMAGE_TAG"
+                   sh "aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 508308164161.dkr.ecr.us-east-1.amazonaws.com"
+                   sh "docker build -t demo-cicd ."
+                   sh "docker tag demo-cicd:latest 508308164161.dkr.ecr.us-east-1.amazonaws.com/demo-cicd:latest"
+                   sh "docker push 508308164161.dkr.ecr.us-east-1.amazonaws.com/demo-cicd:latest"
+                   
                  }
              }
          }
