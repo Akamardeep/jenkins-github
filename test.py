@@ -4,4 +4,4 @@ print('amardeep')
 
 @app.route("/")
 def hello():
-    return "Hello Worlda!" 
+    return "Hello Worslda!" 
