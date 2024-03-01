@@ -7,6 +7,7 @@ pipeline {
         AWS_DEFAULT_REGION = 'us-east-1'  // replace with your ECR region
         ECR_REPO = 'demo-cicd'        // replace with your ECR repository name
         IMAGE_TAG = sh(script: 'echo $BUILD_NUMBER', returnStdout: true).trim()
+        AWS_ACCOUNT_ID = '508308164161'
     }
 
     stages {
