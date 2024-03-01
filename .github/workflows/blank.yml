@@ -31,10 +31,10 @@ jobs:
           nproc
           free
           
-      - name: docker run
+      - name: docker build
         run: |
-         docker build -t image1 .
-         docker run -p 7000:7000 image1
+          sh build.sh
+      
         
       - name: run file
         run: |
