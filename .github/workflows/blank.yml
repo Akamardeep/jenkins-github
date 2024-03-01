@@ -30,6 +30,11 @@ jobs:
           pwd
           nproc
           free
+
+      
+      - name: run file
+        run: |
+         test.py
           
           
    
