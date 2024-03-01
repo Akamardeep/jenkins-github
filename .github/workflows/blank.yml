@@ -43,8 +43,7 @@ jobs:
         
       - name: Deploy on EC2
         run: |
-            echo "login to ec2"
-            sh login.sh
+            echo "login to ec2
       
       - name: Update ECS Service
         run: |
