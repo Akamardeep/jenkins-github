@@ -40,11 +40,6 @@ jobs:
             pwd
             sh build.sh
       
-        
-      - name: Deploy on EC2
-        run: |
-            echo "login to ec2
-      
       - name: Update ECS Service
         run: |
             aws ecs update-service --cluster jithesh --service jithesh-service --force-new-deployment   
