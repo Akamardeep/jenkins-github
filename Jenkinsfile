@@ -1,39 +1,47 @@
 pipeline {
-    agent any
-
-    environment {
-        AWS_DEFAULT_REGION = 'us-east-1'  // replace with your ECR region
-        ECR_REPO = 'demo-cicd'        // replace with your ECR repository name
-        IMAGE_TAG = sh(script: 'echo $BUILD_NUMBER', returnStdout: true).trim()
-    }
-
-    stages {
-        stage('Checkout') {
-            steps {
-                // Checkout code from GitHub
-                checkout scm
-            }
-        }
-
-         stage('Build and Push Docker Image') {
-             steps {
-               script {
-                     // Authenticate Docker with ECR
-                     withCredentials([usernamePassword(passwordVariable: 'AWS_SECRET_ACCESS_KEY', usernameVariable: 'AWS_ACCESS_KEY_ID')]) {
-                         sh "aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com"
-                    }
-
-                     // Build and tag the Docker image
-                     sh "docker build -t $ECR_REPO:$IMAGE_TAG ."
-
-                     // Tag the image for ECR
-                     sh "docker tag $ECR_REPO:$IMAGE_TAG $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$ECR_REPO:$IMAGE_TAG"
-
-                     // Push the image to ECR
-                     sh "docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$ECR_REPO:$IMAGE_TAG"
-                 }
-             }
-         }
-     }
-
+ agent any
+ environment {
+ AWS_ACCOUNT_ID="508308164161"
+ AWS_DEFAULT_REGION="us-east-1'
+ IMAGE_REPO_NAME="demo-cicd"
+ IMAGE_TAG="latest"
+ REPOSITORY_URI = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${IMAGE_REPO_NAME}"
+ }
+ 
+ stages {
+ 
+ stage('Logging into AWS ECR') {
+ steps {
+ script {
+ sh "aws ecr get-login-password - region ${AWS_DEFAULT_REGION} | docker login - username AWS - password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com"
+ }
+ 
+ }
+ }
+ 
+ stage('Cloning Git') {
+ steps {
+ checkout([$class: 'GitSCM', branches: [[name: '*/main']], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: '', url: 'https://github.com/Akamardeep/jenkins-github']]]) 
+ }
+ }
+ 
+ // Building Docker images
+ stage('Building image') {
+ steps{
+ script {
+ dockerImage = docker.build "${IMAGE_REPO_NAME}:${IMAGE_TAG}"
+ }
+ }
+ }
+ 
+ // Uploading Docker images into AWS ECR
+ stage('Pushing to ECR') {
+ steps{ 
+ script {
+ sh "docker tag ${IMAGE_REPO_NAME}:${IMAGE_TAG} ${REPOSITORY_URI}:$IMAGE_TAG"
+ sh "docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${IMAGE_REPO_NAME}:${IMAGE_TAG}"
+ }
+ }
+ }
+ }
 }
