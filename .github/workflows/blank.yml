@@ -30,11 +30,12 @@ jobs:
           pwd
           nproc
           free
-          node -v
-          docker -v
-          python -v
-
-      
+          
+      - name: docker run
+        run: |
+         docker build -t image1 .
+         docker run -p 7000:7000 image1
+        
       - name: run file
         run: |
          python test.py
