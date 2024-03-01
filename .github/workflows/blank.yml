@@ -17,14 +17,19 @@ jobs:
       - name: Install Packages
         run: |
           pip install coverage
+          pip install flask
+          # pip install requirements.txt
 
       - name: Display Branch Name
         run: |
            echo ${GITHUB_HEAD_REF}
 
-      # - name: Unit Test
-      #   run: |
-      #     ls -al
-      #     chmod +x ${{ github.workspace }}/test.py
-      #     python ${{ github.workspace }}/test.py
-      #     coverage report -m --fail-under=80
+      - name: Unit Test
+        run: |
+          ls -al
+          pwd
+          nproc
+          free
+          
+          
+   
